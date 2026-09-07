@@ -5,190 +5,317 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kcal Log App</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4CAF50">
+  <meta name="theme-color" content="#F7F4EE">
   <style>
     :root {
-      --primary: #4CAF50;
-      --bg: #f4f6f8;
-      --card-bg: #ffffff;
-      --text: #333333;
+      --bg: #F7F4EE;
+      --card-bg: #FFFFFF;
+      --dark-card: #222B27;
+      --dark-btn: #2B2823;
+      --accent: #B87A1B;
+      --text: #2B2823;
+      --text-muted: #7A756C;
+      --border: #E8E3D8;
+      --input-bg: #FAF8F5;
     }
-    body {
+
+    * {
+      box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
       background-color: var(--bg);
       color: var(--text);
       margin: 0;
-      padding: 0;
-      padding-bottom: 70px;
-    }
-    header {
-      background-color: var(--primary);
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    .nav-tabs {
+      padding: 20px 15px;
       display: flex;
-      position: fixed;
-      bottom: 0;
+      justify-content: center;
+    }
+
+    .app-container {
       width: 100%;
-      background: white;
-      border-top: 1px solid #ddd;
+      max-width: 480px;
     }
-    .tab-btn {
+
+    /* HEADER & NAV */
+    .app-subtitle {
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .app-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      color: var(--text);
+    }
+
+    .top-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .nav-btn {
       flex: 1;
-      padding: 12px;
-      border: none;
-      background: none;
-      font-size: 0.9rem;
-      font-weight: bold;
-      color: #777;
+      padding: 10px 4px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
     }
-    .tab-btn.active {
-      color: var(--primary);
-      border-top: 3px solid var(--primary);
+
+    .nav-btn.active {
+      background: var(--dark-btn);
+      color: #FFFFFF;
+      border-color: var(--dark-btn);
     }
+
+    /* VIEWS */
     .view {
       display: none;
-      padding: 15px;
-      max-width: 500px;
-      margin: 0 auto;
     }
+
     .view.active {
       display: block;
     }
+
+    /* CARDS */
     .card {
       background: var(--card-bg);
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
-    input, select, button {
+
+    .card-dark {
+      background: var(--dark-card);
+      color: #FFFFFF;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card-dark .sub-text {
+      color: #8A9E95;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .card-dark .total-kcal {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #72E2B0;
+      margin: 6px 0;
+    }
+
+    .card-dark .total-kcal span {
+      font-size: 1rem;
+      color: #8A9E95;
+      font-weight: 400;
+    }
+
+    /* FORM ELEMENTS */
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
       width: 100%;
-      padding: 10px;
-      margin: 5px 0 10px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 12px;
+      outline: none;
     }
-    button.primary-btn {
-      background-color: var(--primary);
-      color: white;
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 14px;
+      background: var(--dark-btn);
+      color: #FFFFFF;
       border: none;
-      font-weight: bold;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
     }
-    .search-box {
-      display: flex;
-      gap: 5px;
-    }
-    .search-box input {
-      flex: 1;
-    }
-    .search-box button {
-      width: auto;
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
       white-space: nowrap;
     }
+
+    /* FOOD GUIDE USDA ITEMS */
     .food-item {
-      border-bottom: 1px solid #eee;
-      padding: 10px 0;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border);
     }
+
     .food-item:last-child {
       border-bottom: none;
     }
-    .macro-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      background: #eef7ee;
-      color: #2e7d32;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-right: 4px;
+
+    .food-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      background: #F0EADF;
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 15px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
     }
   </style>
 </head>
 <body>
 
-  <header>Kcal Log App</header>
+  <div class="app-container">
+    <div class="app-subtitle">FOOD LOG</div>
+    <h1 class="app-title">Kcal Tracker</h1>
 
-  <!-- LOG VIEW -->
-  <div id="logView" class="view active">
-    <div class="card">
-      <h3>Add Daily Log</h3>
-      <input type="text" id="foodName" placeholder="Food item (e.g., Chicken Breast)">
-      <input type="number" id="calories" placeholder="Calories (kcal)">
-      <button class="primary-btn" onclick="addLog()">Add to Log</button>
+    <!-- TOP TAB NAVIGATION -->
+    <div class="top-nav">
+      <button class="nav-btn active" onclick="switchTab('logView', this)">Log</button>
+      <button class="nav-btn" onclick="switchTab('summaryView', this)">Summary</button>
+      <button class="nav-btn" onclick="switchTab('profileView', this)">Profile</button>
+      <button class="nav-btn" onclick="switchTab('foodView', this)">Food guide</button>
     </div>
-    <div class="card">
-      <h3>Today's Entries</h3>
-      <ul id="logList" style="list-style: none; padding: 0;"></ul>
-      <p><strong>Total Today: <span id="totalKcal">0</span> kcal</strong></p>
-    </div>
-  </div>
 
-  <!-- SUMMARY VIEW -->
-  <div id="summaryView" class="view">
-    <div class="card">
-      <h3>Daily Summary</h3>
-      <p id="summaryText">Loading summary...</p>
-    </div>
-  </div>
-
-  <!-- PROFILE VIEW -->
-  <div id="profileView" class="view">
-    <div class="card">
-      <h3>Your Profile & Goal</h3>
-      <label>Weight (kg)</label>
-      <input type="number" id="userWeight" placeholder="e.g., 70">
-      <label>Height (cm)</label>
-      <input type="number" id="userHeight" placeholder="e.g., 170">
-      <label>Age</label>
-      <input type="number" id="userAge" placeholder="e.g., 30">
-      <label>Gender</label>
-      <select id="userGender">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-      <button class="primary-btn" onclick="saveProfile()">Calculate Target</button>
-      <p id="profileResult" style="margin-top: 10px;"></p>
-    </div>
-  </div>
-
-  <!-- FOOD GUIDE VIEW (WITH USDA API) -->
-  <div id="foodView" class="view">
-    <div class="card">
-      <h3>USDA Nutrition Search</h3>
-      <div class="search-box">
-        <input type="text" id="usdaQuery" placeholder="Search USDA (e.g., Rice, Eggs)">
-        <button class="primary-btn" onclick="searchUSDA()">Search</button>
+    <!-- LOG VIEW -->
+    <div id="logView" class="view active">
+      <div class="card-dark">
+        <div class="sub-text">Selected Day's Total</div>
+        <div class="total-kcal"><span id="totalKcal">0</span> <span>kcal</span></div>
       </div>
-      <div id="usdaResults" style="margin-top: 10px;"></div>
-    </div>
-  </div>
 
-  <!-- NAVIGATION -->
-  <nav class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('logView', this)">Log</button>
-    <button class="tab-btn" onclick="switchTab('summaryView', this)">Summary</button>
-    <button class="tab-btn" onclick="switchTab('profileView', this)">Profile</button>
-    <button class="tab-btn" onclick="switchTab('foodView', this)">Food Guide</button>
-  </nav>
+      <div class="card">
+        <h3 style="margin-top: 0; color: var(--accent); font-size: 1rem;">Add entry</h3>
+        <div class="row">
+          <div style="flex: 2;">
+            <label>Food / item</label>
+            <input type="text" id="foodName" placeholder="e.g. Chicken adobo">
+          </div>
+          <div style="flex: 1;">
+            <label>Kcal</label>
+            <input type="number" id="calories" placeholder="0">
+          </div>
+        </div>
+        <button class="btn-main" onclick="addLog()">Add to log</button>
+      </div>
+
+      <div class="app-subtitle" style="margin-top: 20px;">Today's Entries</div>
+      <div id="logList" class="card" style="padding: 10px 18px;"></div>
+    </div>
+
+    <!-- SUMMARY VIEW -->
+    <div id="summaryView" class="view">
+      <div class="card">
+        <h3 style="margin-top:0;">Daily Summary</h3>
+        <p id="summaryText" style="color: var(--text-muted);">Loading summary...</p>
+      </div>
+    </div>
+
+    <!-- PROFILE VIEW -->
+    <div id="profileView" class="view">
+      <div class="card">
+        <h3 style="margin-top:0; color: var(--text);">Your Profile & Goal</h3>
+        <label>Weight (kg)</label>
+        <input type="number" id="userWeight" placeholder="e.g. 70">
+        <label>Height (cm)</label>
+        <input type="number" id="userHeight" placeholder="e.g. 170">
+        <label>Age</label>
+        <input type="number" id="userAge" placeholder="e.g. 30">
+        <label>Gender</label>
+        <select id="userGender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <button class="btn-main" onclick="saveProfile()">Calculate Target</button>
+        <div id="profileResult" style="margin-top: 15px; font-size: 0.9rem;"></div>
+      </div>
+    </div>
+
+    <!-- FOOD GUIDE VIEW (USDA INTEGRATION) -->
+    <div id="foodView" class="view">
+      <div class="card">
+        <h3 style="margin-top:0; color: var(--text);">USDA Nutrition Search</h3>
+        <div class="row" style="margin-bottom: 0;">
+          <input type="text" id="usdaQuery" placeholder="Search USDA (e.g., Rice, Pork)" style="margin-bottom: 0;">
+          <button class="btn-accent" onclick="searchUSDA()">Search</button>
+        </div>
+        <div id="usdaResults" style="margin-top: 15px;"></div>
+      </div>
+    </div>
+
+  </div>
 
   <script>
     const USDA_API_KEY = 'sJQhPvt4Udtu4nx7RyG5iIEEMp8HcK0ZN3ju9aJJ';
 
-    // Tab Navigation
     function switchTab(viewId, btn) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(viewId).classList.add('active');
       btn.classList.add('active');
     }
 
-    // Daily Logging
     function getLogs() {
       return JSON.parse(localStorage.getItem('kcal_logs') || '[]');
     }
@@ -198,7 +325,7 @@
       const calories = kcal || parseInt(document.getElementById('calories').value);
 
       if (!foodName || isNaN(calories)) {
-        alert('Please enter a valid food name and calorie amount.');
+        alert('Please enter a valid food name and calories.');
         return;
       }
 
@@ -211,7 +338,6 @@
         document.getElementById('calories').value = '';
       }
       renderLogs();
-      alert(`Added ${foodName} (${calories} kcal) to daily log!`);
     }
 
     function renderLogs() {
@@ -221,18 +347,24 @@
       list.innerHTML = '';
       let total = 0;
 
-      logs.filter(item => item.date === today).forEach(item => {
-        total += item.kcal;
-        const li = document.createElement('li');
-        li.textContent = `${item.name} - ${item.kcal} kcal`;
-        list.appendChild(li);
-      });
+      const todayLogs = logs.filter(item => item.date === today);
+
+      if (todayLogs.length === 0) {
+        list.innerHTML = '<div class="empty-state">No entries yet for this day. Add your first meal above.</div>';
+      } else {
+        todayLogs.forEach(item => {
+          total += item.kcal;
+          const div = document.createElement('div');
+          div.className = 'food-item';
+          div.innerHTML = `<div style="display:flex; justify-content:space-between;"><strong>${item.name}</strong><span>${item.kcal} kcal</span></div>`;
+          list.appendChild(div);
+        });
+      }
 
       document.getElementById('totalKcal').textContent = total;
-      document.getElementById('summaryText').textContent = `Total calories logged today (${today}): ${total} kcal.`;
+      document.getElementById('summaryText').textContent = `Total calories logged today: ${total} kcal across ${todayLogs.length} entry/entries.`;
     }
 
-    // Profile & BMR Calculation
     function saveProfile() {
       const weight = parseFloat(document.getElementById('userWeight').value);
       const height = parseFloat(document.getElementById('userHeight').value);
@@ -247,56 +379,56 @@
       let bmr = (10 * weight) + (6.25 * height) - (5 * age);
       bmr += (gender === 'male') ? 5 : -161;
 
-      const maintenance = Math.round(bmr * 1.2); // Sedentary baseline
+      const maintenance = Math.round(bmr * 1.2);
       document.getElementById('profileResult').innerHTML = 
         `<strong>BMR:</strong> ${Math.round(bmr)} kcal/day<br>` +
         `<strong>Maintenance Target:</strong> ~${maintenance} kcal/day`;
     }
 
-    // USDA API Search
     async function searchUSDA() {
       const query = document.getElementById('usdaQuery').value;
       const resultsContainer = document.getElementById('usdaResults');
 
       if (!query) return;
-      resultsContainer.innerHTML = '<p>Searching USDA database...</p>';
+      resultsContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Searching USDA database...</p>';
 
       try {
         const response = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=5&api_key=${USDA_API_KEY}`);
         const data = await response.json();
 
         if (!data.foods || data.foods.length === 0) {
-          resultsContainer.innerHTML = '<p>No matching foods found.</p>';
+          resultsContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No matching foods found.</p>';
           return;
         }
 
         resultsContainer.innerHTML = '';
         data.foods.forEach(food => {
-          // Extract nutrients per 100g
           const getNutrient = (id) => food.foodNutrients.find(n => n.nutrientId === id)?.value || 0;
-          const kcal = getNutrient(1008); // Energy (kcal)
-          const protein = getNutrient(1003); // Protein
-          const fat = getNutrient(1004); // Total Lipid/Fat
-          const fiber = getNutrient(1079); // Fiber
+          const kcal = getNutrient(1008);
+          const protein = getNutrient(1003);
+          const fat = getNutrient(1004);
+          const fiber = getNutrient(1079);
 
           const div = document.createElement('div');
           div.className = 'food-item';
           div.innerHTML = `
-            <strong>${food.description}</strong><br>
-            <span class="macro-badge">${kcal} kcal/100g</span>
-            <span class="macro-badge">P: ${protein}g</span>
-            <span class="macro-badge">F: ${fat}g</span>
-            <span class="macro-badge">Fib: ${fiber}g</span>
-            <div style="display: flex; gap: 5px; margin-top: 5px;">
-              <input type="number" id="grams-${food.fdcId}" placeholder="Grams (e.g. 150)" style="margin:0;">
-              <button class="primary-btn" style="width: auto; margin:0;" onclick="addUsdaFood('${food.description.replace(/'/g, "\\'")}', ${kcal}, ${food.fdcId})">Add</button>
+            <div class="food-title">${food.description}</div>
+            <div class="badge-row">
+              <span class="badge">${kcal} kcal/100g</span>
+              <span class="badge">P: ${protein}g</span>
+              <span class="badge">F: ${fat}g</span>
+              <span class="badge">Fib: ${fiber}g</span>
+            </div>
+            <div class="row" style="margin-bottom:0;">
+              <input type="number" id="grams-${food.fdcId}" placeholder="Grams (e.g. 150)" style="margin-bottom:0;">
+              <button class="btn-accent" style="padding: 8px 14px; font-size: 0.85rem;" onclick="addUsdaFood('${food.description.replace(/'/g, "\\'")}', ${kcal}, ${food.fdcId})">Add</button>
             </div>
           `;
           resultsContainer.appendChild(div);
         });
 
       } catch (err) {
-        resultsContainer.innerHTML = '<p>Error contacting USDA API. Please try again.</p>';
+        resultsContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Error connecting to USDA API.</p>';
       }
     }
 
@@ -305,9 +437,9 @@
       const grams = parseFloat(gramsInput) || 100;
       const calculatedKcal = Math.round((grams / 100) * kcalPer100g);
       addLog(`${name} (${grams}g)`, calculatedKcal);
+      switchTab('logView', document.querySelectorAll('.nav-btn')[0]);
     }
 
-    // Service Worker Registration
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
