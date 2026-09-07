@@ -380,19 +380,25 @@
       const height = parseFloat(document.getElementById('userHeight').value);
       const age = parseInt(document.getElementById('userAge').value);
       const gender = document.getElementById('userGender').value;
+      const activityMultiplier = parseFloat(document.getElementById('userActivity').value);
 
       if (!weight || !height || !age) {
         alert('Please fill in weight, height, and age.');
         return;
       }
 
+      // Mifflin-St Jeor BMR Equation
       let bmr = (10 * weight) + (6.25 * height) - (5 * age);
       bmr += (gender === 'male') ? 5 : -161;
 
-      const maintenance = Math.round(bmr * 1.2);
+      // Calculate Maintenance with Activity Multiplier
+      const maintenance = Math.round(bmr * activityMultiplier);
+      const weightLossTarget = maintenance - 500; // 0.5 kg/week loss
+
       document.getElementById('profileResult').innerHTML = 
         `<strong>BMR:</strong> ${Math.round(bmr)} kcal/day<br>` +
-        `<strong>Maintenance Target:</strong> ~${maintenance} kcal/day`;
+        `<strong>Maintenance Target:</strong> ~${maintenance} kcal/day<br>` +
+        `<strong style="color: var(--accent);">Weight Loss Target (-500 kcal):</strong> ~${weightLossTarget} kcal/day`;
     }
 
     async function searchUSDA() {
