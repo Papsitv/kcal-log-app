@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kcal-log-v3';
+const CACHE_NAME = 'kcal-log-v4';
 const ASSETS = [
   './',
   './index.html',
