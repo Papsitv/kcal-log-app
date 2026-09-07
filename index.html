@@ -279,14 +279,24 @@
         <label>Weight (kg)</label>
         <input type="number" id="userWeight" placeholder="e.g. 70">
         <label>Height (cm)</label>
-        <input type="number" id="userHeight" placeholder="e.g. 170">
+        <input type="number" id="userHeight" placeholder="e.g. 162.56">
         <label>Age</label>
-        <input type="number" id="userAge" placeholder="e.g. 30">
+        <input type="number" id="userAge" placeholder="e.g. 44">
         <label>Gender</label>
         <select id="userGender">
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>
+
+        <label>Daily Activity Level</label>
+        <select id="userActivity">
+          <option value="1.2">Sedentary (Little or no exercise)</option>
+          <option value="1.375" selected>Lightly Active (1 hr walk / light exercise)</option>
+          <option value="1.55">Moderately Active (Moderate exercise 3-5 days/wk)</option>
+          <option value="1.725">Very Active (Hard exercise 6-7 days/wk)</option>
+          <option value="1.9">Extra Active (Very hard physical work / training)</option>
+        </select>
+
         <button class="btn-main" onclick="saveProfile()">Calculate Target</button>
         <div id="profileResult" style="margin-top: 15px; font-size: 0.9rem;"></div>
       </div>
