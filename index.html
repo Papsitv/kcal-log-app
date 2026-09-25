@@ -940,6 +940,41 @@ select:focus {
 .food-lookup-link:first-of-type {
   border-top: none;
 }
+.usda-search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.usda-search-row input {
+  flex: 1;
+}
+.usda-search-btn {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.usda-search-btn:active {
+  background: var(--mustard-dark);
+}
+.usda-search-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.usda-status {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin: 0 0 10px 2px;
+  min-height: 14px;
+}
+.usda-status.error {
+  color: var(--rust);
+}
 </style>
 </head>
 <body>
@@ -1186,11 +1221,16 @@ select:focus {
     >
     <div id="foodsList"></div>
     <div class="food-lookup-card">
-      <div class="food-lookup-title">Can't find it here?</div>
+      <div class="food-lookup-title">Can't find it here? Search USDA FoodData Central</div>
       <div class="food-lookup-text">
-        For anything not on this list — other brands, restaurant items, imported products — these free, searchable databases cover a much wider range without needing to ask an AI for a guess:
+        Live search of the USDA database — thousands of foods and branded products, values per 100g.
       </div>
-      <a class="food-lookup-link" href="https://www.fatsecret.com/calories-nutrition/search?q=" target="_blank" rel="noopener">FatSecret food & calorie search ↗</a>
+      <div class="usda-search-row">
+        <input type="text" id="usdaSearchInput" placeholder="e.g. peanut butter, white bread" autocomplete="off">
+        <button type="button" class="usda-search-btn" id="usdaSearchBtn">Search</button>
+      </div>
+      <div class="usda-status" id="usdaStatus"></div>
+      <div id="usdaResults"></div>
       <a class="food-lookup-link" href="https://i.fnri.dost.gov.ph/login/fct" target="_blank" rel="noopener">FNRI PhilFCT — official PH food composition tables ↗</a>
     </div>
   </div>
@@ -1203,6 +1243,8 @@ select:focus {
   const STORAGE_KEY = 'kcal-log-entries';
   const GOAL_KEY = 'kcal-daily-goal';
   const PROFILE_KEY = 'kcal-profile';
+  /* Free key from https://fdc.nal.usda.gov/api-key-signup.html — paste yours below. */
+  const USDA_API_KEY = 'YOUR_USDA_API_KEY_HERE';
   let allEntries = {};
   let dailyGoal = null;
   let profile = null;
@@ -2185,6 +2227,119 @@ select:focus {
     const qtyLabel = unit === 'g'
       ? result.qty + 'g'
       : result.qty + ' ' + unitLabel(unit, result.qty);
+    document.getElementById('foodName').value = name + ' (' + qtyLabel + ')';
+    document.getElementById('kcalInput').value = result.kcal;
+    activateTab('log');
+    document.getElementById('kcalInput').focus();
+  });
+  /* =======================================================
+     USDA FOODDATA CENTRAL SEARCH
+     ======================================================= */
+  const usdaSearchInput = document.getElementById('usdaSearchInput');
+  const usdaSearchBtn = document.getElementById('usdaSearchBtn');
+  const usdaStatusEl = document.getElementById('usdaStatus');
+  const usdaResultsEl = document.getElementById('usdaResults');
+  function getEnergyKcal(foodNutrients) {
+    if (!Array.isArray(foodNutrients)) return null;
+    const hit = foodNutrients.find(n =>
+      n.nutrientId === 1008 ||
+      n.nutrientNumber === '208' ||
+      (n.nutrientName && n.nutrientName.toLowerCase() === 'energy' && (n.unitName || '').toLowerCase() === 'kcal')
+    );
+    if (!hit) return null;
+    const val = hit.value !== undefined ? hit.value : hit.amount;
+    return Number.isFinite(Number(val)) ? Number(val) : null;
+  }
+  async function searchUsda() {
+    const query = usdaSearchInput.value.trim();
+    if (!query) {
+      flash(usdaSearchInput);
+      return;
+    }
+    if (!USDA_API_KEY || USDA_API_KEY === 'YOUR_USDA_API_KEY_HERE') {
+      usdaStatusEl.textContent = 'No USDA API key set yet — paste your free key into USDA_API_KEY near the top of the script.';
+      usdaStatusEl.className = 'usda-status error';
+      usdaResultsEl.innerHTML = '';
+      return;
+    }
+    usdaSearchBtn.disabled = true;
+    usdaStatusEl.textContent = 'Searching…';
+    usdaStatusEl.className = 'usda-status';
+    usdaResultsEl.innerHTML = '';
+    try {
+      const url = 'https://api.nal.usda.gov/fdc/v1/foods/search?api_key=' +
+        encodeURIComponent(USDA_API_KEY) +
+        '&query=' + encodeURIComponent(query) +
+        '&pageSize=15';
+      const res = await fetch(url);
+      if (!res.ok) {
+        if (res.status === 403) throw new Error('USDA API key was rejected (403) — check the key is correct and active.');
+        if (res.status === 429) throw new Error('USDA API rate limit reached — try again shortly.');
+        throw new Error('USDA search failed (status ' + res.status + ').');
+      }
+      const data = await res.json();
+      const foods = Array.isArray(data.foods) ? data.foods : [];
+      if (foods.length === 0) {
+        usdaStatusEl.textContent = 'No results for "' + query + '".';
+        return;
+      }
+      renderUsdaResults(foods);
+      const shown = usdaResultsEl.querySelectorAll('.food-row').length;
+      usdaStatusEl.textContent = shown
+        ? shown + ' result' + (shown === 1 ? '' : 's') + ' from USDA FoodData Central (per 100g).'
+        : 'Found results, but none had usable calorie data.';
+    } catch (err) {
+      console.error('USDA search error:', err);
+      usdaStatusEl.textContent = err.message || 'Could not reach USDA FoodData Central. Check your connection and try again.';
+      usdaStatusEl.className = 'usda-status error';
+    } finally {
+      usdaSearchBtn.disabled = false;
+    }
+  }
+  function renderUsdaResults(foods) {
+    let html = '';
+    foods.forEach(f => {
+      const kcal100 = getEnergyKcal(f.foodNutrients);
+      if (kcal100 === null) return;
+      const name = f.description || 'Unknown food';
+      const brandSuffix = f.brandOwner ? ' — ' + f.brandOwner : '';
+      html += `
+        <div class="food-row" data-kcal="${kcal100}" data-refqty="100" data-unit="g" data-name="${escapeHtml(name)}">
+          <div class="food-row-top">
+            <span class="food-name">${escapeHtml(name)}${escapeHtml(brandSuffix)}</span>
+            <span class="food-per100">${Math.round(kcal100)} kcal/100g</span>
+          </div>
+          <div class="food-row-bottom">
+            <span class="food-grams-label">grams</span>
+            <input type="number" class="food-unit-input" value="100" min="1" step="1">
+            <span class="food-kcal-result">${Math.round(kcal100)} kcal</span>
+            <button class="food-add-btn">Use</button>
+          </div>
+        </div>
+      `;
+    });
+    usdaResultsEl.innerHTML = html;
+  }
+  usdaSearchBtn.addEventListener('click', searchUsda);
+  usdaSearchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      searchUsda();
+    }
+  });
+  usdaResultsEl.addEventListener('input', e => {
+    if (!e.target.classList.contains('food-unit-input')) return;
+    const row = e.target.closest('.food-row');
+    const result = foodRowKcal(row);
+    row.querySelector('.food-kcal-result').textContent = result.kcal + ' kcal';
+  });
+  usdaResultsEl.addEventListener('click', e => {
+    if (!e.target.classList.contains('food-add-btn')) return;
+    const row = e.target.closest('.food-row');
+    const name = row.getAttribute('data-name');
+    const unit = row.getAttribute('data-unit');
+    const result = foodRowKcal(row);
+    const qtyLabel = unit === 'g' ? result.qty + 'g' : result.qty + ' ' + unitLabel(unit, result.qty);
     document.getElementById('foodName').value = name + ' (' + qtyLabel + ')';
     document.getElementById('kcalInput').value = result.kcal;
     activateTab('log');
